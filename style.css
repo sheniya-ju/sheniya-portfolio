@@ -211,3 +211,278 @@ a, button { transition: color .25s ease, background .25s ease, border-color .25s
     margin-inline: auto;
   }
 }
+
+/* =====================================
+   MOBILE HERO VIDEO FIX
+===================================== */
+
+.video-frame {
+  position: relative;
+  width: min(88vw, 360px);
+  aspect-ratio: 4 / 5;
+  height: auto;
+  min-height: 0;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: 180px 180px 24px 24px;
+  background: #f4f2ee;
+  box-shadow: 0 20px 55px rgba(30, 30, 25, 0.08);
+  isolation: isolate;
+}
+
+.video-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  background: #f4f2ee;
+  z-index: 1;
+}
+
+.sound-toggle {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 3;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease,
+    background 250ms ease;
+}
+
+.sound-toggle:hover {
+  transform: scale(1.1);
+  background: #333;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 650px) {
+  .hero-visual {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    margin: 12px auto 28px;
+  }
+
+  .video-frame {
+    width: min(82vw, 330px);
+    aspect-ratio: 4 / 5;
+    height: auto;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .video-frame {
+    width: 86vw;
+  }
+}
+
+/* =====================================
+   TYPOGRAPHY REFINEMENT
+===================================== */
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+body,
+body p,
+body li,
+body label,
+body input,
+body textarea,
+body select,
+body button,
+body small,
+body time,
+body figcaption {
+  font-weight: 400;
+}
+
+p,
+li,
+label,
+input,
+textarea,
+select,
+button,
+small,
+figcaption,
+nav a {
+  font-size: max(12px, 1em);
+}
+
+p,
+li {
+  line-height: 1.7;
+}
+
+small,
+.caption,
+.eyebrow,
+.project-meta {
+  font-size: max(12px, 0.8rem);
+}
+
+/* Keep headings visually distinct */
+h1,
+h2,
+h3,
+h4,
+.logo,
+.brand {
+  line-height: 1.2;
+}
+
+/* Avoid tiny secondary labels */
+.hero-label,
+.section-label,
+.project-category,
+.footer-note {
+  font-size: max(12px, 0.75rem);
+  letter-spacing: 0.12em;
+}
+
+/* Prevent long text from breaking mobile layout */
+p,
+li,
+a,
+.project-card,
+.contact-card {
+  overflow-wrap: anywhere;
+}
+
+/* =====================================
+   SMOOTH INTERACTIONS
+===================================== */
+
+a,
+button,
+.project-card,
+.skill-card,
+.experience-card,
+.certificate-card,
+.contact-card {
+  -webkit-tap-highlight-color: transparent;
+}
+
+nav a {
+  position: relative;
+  transition: color 220ms ease;
+}
+
+nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: width 250ms ease;
+}
+
+nav a:hover::after,
+nav a:focus-visible::after {
+  width: 100%;
+}
+
+button,
+.button,
+.btn,
+a.button,
+a.btn {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+button:hover,
+.button:hover,
+.btn:hover,
+a.button:hover,
+a.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+}
+
+.project-card,
+.skill-card,
+.experience-card,
+.certificate-card,
+.contact-card {
+  transition:
+    transform 280ms ease,
+    box-shadow 280ms ease,
+    border-color 280ms ease;
+}
+
+.project-card:hover,
+.skill-card:hover,
+.experience-card:hover,
+.certificate-card:hover,
+.contact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.08);
+}
+
+.project-card img,
+.project-card .project-image {
+  transition: transform 350ms ease;
+}
+
+.project-card:hover img,
+.project-card:hover .project-image {
+  transform: scale(1.025);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #a58a63;
+  outline-offset: 4px;
+}
+
+/* Touchscreen and reduced-motion support */
+@media (hover: none) {
+  .project-card:hover,
+  .skill-card:hover,
+  .experience-card:hover,
+  .certificate-card:hover,
+  .contact-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
