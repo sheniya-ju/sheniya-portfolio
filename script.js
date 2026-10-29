@@ -1,87 +1,215 @@
-const menuToggle = document.getElementById('menuToggle');
-const nav = document.getElementById('nav');
-menuToggle?.addEventListener('click', () => {
-  const open = nav.classList.toggle('open');
-  menuToggle.setAttribute('aria-expanded', String(open));
+
+/* =========================================
+   MOBILE NAVIGATION
+========================================= */
+
+const menuToggle = document.getElementById("menuToggle");
+const nav = document.getElementById("nav");
+
+menuToggle?.addEventListener("click", () => {
+  if (!nav) return;
+
+  const isOpen = nav.classList.toggle("open");
+
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  menuToggle.setAttribute(
+    "aria-label",
+    isOpen ? "Close navigation" : "Open navigation"
+  );
 });
-nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
-  nav.classList.remove('open');
-  menuToggle?.setAttribute('aria-expanded', 'false');
-}));
 
-const progress = document.getElementById('progress');
-window.addEventListener('scroll', () => {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  progress.style.width = `${max > 0 ? (window.scrollY / max) * 100 : 0}%`;
-}, { passive: true });
+nav?.querySelectorAll("a").forEach((link) => {
+  link.addEventListener("click", () => {
+    nav.classList.remove("open");
+    menuToggle?.setAttribute("aria-expanded", "false");
+    menuToggle?.setAttribute("aria-label", "Open navigation");
+  });
+});
 
-const revealObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('is-visible');
-      revealObserver.unobserve(entry.target);
+
+/* =========================================
+   SCROLL PROGRESS
+========================================= */
+
+const progress = document.getElementById("progress");
+
+function updateProgress() {
+  if (!progress) return;
+
+  const maxScroll =
+    document.documentElement.scrollHeight - window.innerHeight;
+
+  const percentage =
+    maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
+
+  progress.style.width = `${percentage}%`;
+}
+
+window.addEventListener("scroll", updateProgress, { passive: true });
+window.addEventListener("resize", updateProgress);
+updateProgress();
+
+
+/* =========================================
+   REVEAL ANIMATIONS
+========================================= */
+
+const revealItems = document.querySelectorAll(".reveal");
+
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        const element = entry.target;
+        const parent = element.parentElement;
+
+        const siblings = parent
+          ? [...parent.querySelectorAll(".reveal")]
+          : [];
+
+        const index = Math.max(0, siblings.indexOf(element));
+
+        element.style.transitionDelay =
+          `${Math.min(index * 70, 350)}ms`;
+
+        element.classList.add("is-visible");
+        observer.unobserve(element);
+      });
+    },
+    { threshold: 0.12 }
+  );
+
+  revealItems.forEach((element) => revealObserver.observe(element));
+} else {
+  revealItems.forEach((element) => {
+    element.classList.add("is-visible");
+  });
+}
+
+
+/* =========================================
+   HERO VIDEO
+========================================= */
+
+
+const video = document.getElementById("heroVideo");
+const soundToggle = document.getElementById("soundToggle");
+
+function updateSoundButton() {
+  if (!video || !soundToggle) return;
+
+  const muted = video.muted || video.volume === 0;
+
+  soundToggle.textContent = muted ? "♪" : "♫";
+  soundToggle.setAttribute(
+    "aria-label",
+    muted ? "Turn sound on" : "Mute video"
+  );
+  soundToggle.title = muted ? "Turn sound on" : "Mute video";
+}
+
+if (video) {
+  // Start muted because browsers usually block autoplay with sound.
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+
+  video.play().catch((error) => {
+    console.warn("Video autoplay was blocked:", error);
+  });
+
+  video.addEventListener("volumechange", updateSoundButton);
+
+  soundToggle?.addEventListener("click", async () => {
+    try {
+      if (video.paused) {
+        await video.play();
+      }
+
+      video.muted = !video.muted;
+
+      if (!video.muted) {
+        video.volume = 1;
+      }
+
+      updateSoundButton();
+    } catch (error) {
+      console.error("Video playback failed:", error);
     }
   });
-}, { threshold: 0.12 });
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-const video = document.getElementById('heroVideo');
-const placeholder = document.getElementById('videoPlaceholder');
-const soundToggle = document.getElementById('soundToggle');
-if (video) {
-  video.addEventListener('loadeddata', () => { placeholder.style.display = 'none'; });
-  video.addEventListener('error', () => { placeholder.style.display = 'flex'; });
+  updateSoundButton();
 }
-soundToggle?.addEventListener('click', () => {
-  if (!video || !video.querySelector('source') || !video.currentSrc) return;
-  video.muted = !video.muted;
-  soundToggle.textContent = video.muted ? '♪' : 'Ⅱ';
-  soundToggle.setAttribute('aria-label', video.muted ? 'Turn sound on' : 'Mute video');
-});
 
 
-const copyEmail = document.getElementById('copyEmail');
-const emailStatus = document.getElementById('emailStatus');
-copyEmail?.addEventListener('click', async () => {
-  const email = 'shenjamdev@gmail.com';
+
+/* =========================================
+   COPY EMAIL
+========================================= */
+
+const copyEmail = document.getElementById("copyEmail");
+const emailStatus = document.getElementById("emailStatus");
+
+copyEmail?.addEventListener("click", async () => {
+  const email = "shenjamdev@gmail.com";
+
   try {
     await navigator.clipboard.writeText(email);
-    if (emailStatus) emailStatus.textContent = 'Email address copied: ' + email;
+
+    if (emailStatus) {
+      emailStatus.textContent = `Email address copied: ${email}`;
+    }
   } catch {
-    if (emailStatus) emailStatus.textContent = 'Email: ' + email + ' — select and copy this address.';
+    if (emailStatus) {
+      emailStatus.textContent =
+        `Email: ${email} — select and copy this address.`;
+    }
   }
 });
 
 
-/* Motion polish: back-to-top, pointer glow, and staggered reveal */
-const scrollTopButton = document.getElementById('scrollTop');
-const cursorGlow = document.querySelector('.cursor-glow');
+/* =========================================
+   SCROLL TO TOP
+========================================= */
 
-const updateScrollTop = () => {
-  if (scrollTopButton) scrollTopButton.classList.toggle('visible', window.scrollY > 480);
-};
-window.addEventListener('scroll', updateScrollTop, { passive: true });
-updateScrollTop();
-scrollTopButton?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+const scrollTopButton = document.getElementById("scrollTop");
 
-if (cursorGlow && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-  window.addEventListener('pointermove', (event) => {
-    cursorGlow.style.left = event.clientX + 'px';
-    cursorGlow.style.top = event.clientY + 'px';
-  }, { passive: true });
+function updateScrollTop() {
+  scrollTopButton?.classList.toggle(
+    "visible",
+    window.scrollY > 480
+  );
 }
 
-const revealItems = document.querySelectorAll('.reveal');
-if ('IntersectionObserver' in window && revealItems.length) {
-  const staggerObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const siblings = entry.target.parentElement ? [...entry.target.parentElement.querySelectorAll('.reveal')] : [];
-        const index = Math.max(0, siblings.indexOf(entry.target));
-        entry.target.style.transitionDelay = Math.min(index * 70, 350) + 'ms';
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  revealItems.forEach((item) => staggerObserver.observe(item));
+window.addEventListener("scroll", updateScrollTop, { passive: true });
+updateScrollTop();
+
+scrollTopButton?.addEventListener("click", () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+});
+
+
+/* =========================================
+   DESKTOP CURSOR GLOW
+========================================= */
+
+const cursorGlow = document.querySelector(".cursor-glow");
+
+if (
+  cursorGlow &&
+  window.matchMedia("(hover: hover) and (pointer: fine)").matches
+) {
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      cursorGlow.style.left = `${event.clientX}px`;
+      cursorGlow.style.top = `${event.clientY}px`;
+    },
+    { passive: true }
+  );
 }
