@@ -1,4 +1,3 @@
-
 /* =========================================
    MOBILE NAVIGATION
 ========================================= */
@@ -93,7 +92,6 @@ if ("IntersectionObserver" in window) {
    HERO VIDEO
 ========================================= */
 
-
 const video = document.getElementById("heroVideo");
 const soundToggle = document.getElementById("soundToggle");
 
@@ -103,25 +101,48 @@ function updateSoundButton() {
   const muted = video.muted || video.volume === 0;
 
   soundToggle.textContent = muted ? "♪" : "♫";
+
   soundToggle.setAttribute(
     "aria-label",
     muted ? "Turn sound on" : "Mute video"
   );
+
   soundToggle.title = muted ? "Turn sound on" : "Mute video";
 }
 
 if (video) {
-  // Start muted because browsers usually block autoplay with sound.
+  // Start muted for browser compatibility.
   video.muted = true;
   video.defaultMuted = true;
   video.playsInline = true;
 
-  video.play().catch((error) => {
-    console.warn("Video autoplay was blocked:", error);
-  });
+  // Play only when at least 50% of the video is visible.
+  if ("IntersectionObserver" in window) {
+    const videoObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play().catch((error) => {
+              console.warn("Video playback was blocked:", error);
+            });
+          } else {
+            video.pause();
+          }
+        });
+      },
+      {
+        threshold: 0.5
+      }
+    );
+
+    videoObserver.observe(video);
+  } else {
+    video.pause();
+  }
 
   video.addEventListener("volumechange", updateSoundButton);
 
+  // Sound toggle button.
   soundToggle?.addEventListener("click", async () => {
     try {
       if (video.paused) {
@@ -142,7 +163,6 @@ if (video) {
 
   updateSoundButton();
 }
-
 
 
 /* =========================================
